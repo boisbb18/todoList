@@ -1,0 +1,18 @@
+<div class="buttonHolder">
+  <h2>{{ user}}</h2>
+</div>
+ <form ng-submit="submit()">
+  <div class="test">
+    <input class="input" type="text" name="message"  placeholder="Add a new task" ng-model="task"/>
+    <input class="submit" type="submit" value="Add"/>
+  </div>
+</form>
+
+<div ng-repeat="x in todoList">
+  <input type="checkbox" ng-model="x.done"><span ng-bind="x.todoText"></span>
+</div>
+<br>
+<div>
+<button class="remove" ng-click="removeItem()">Remove marked</button>
+<button class="logout" ng-click="logOut()">Log Out</button>
+</div>
