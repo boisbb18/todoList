@@ -70,6 +70,14 @@ $scope.todoList = [];
     $scope.todoList = oldlist.filter(function(i) {
         return !i.done;
     })
+    if($scope.todoList.length === 0) {
+       $http.get('/send').then(
+      function(response) {
+        console.log('Message Sent')
+      }, function(err) {
+        console.log('Error --> ',err)
+      });
+    }
    }
 })
 app.controller('sessionCheck',function($scope,$http,$location) {

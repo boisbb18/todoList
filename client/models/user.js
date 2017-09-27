@@ -5,6 +5,7 @@ var db = require('../config');
 
 var userSchema = mongoose.Schema({
   username:{type:String, index: {unique:true}},
+  email:String,
   password:String
 })
 

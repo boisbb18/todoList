@@ -9,6 +9,7 @@ var User = require('./client/models/user');
 var db = require('./client/config');
 var session = require('express-session');
 var util = require('./utility/utility');
+var nodemailer = require('nodemailer');
 var router = express.Router();
 app.use(bodyParser());
 app.use(bodyParser.urlencoded({extended: true})); 
@@ -22,28 +23,30 @@ app.set('port',process.env.PORT || 3000);
   saveUninitialized:true
  }))
 
-
+ 
 
   app.post('/signup',function(req,res) {
-    console.log('Reqbody --> ',req.body);
     var username = req.body.login;
     var password = req.body.password;
+    var email = req.body.email;
     User.findOne({username:username}).exec(function(err,user) {
       if (!user) {
         var newUser = new User({
           username:username,
-          password:password
+          password:password,
+          email: email
         });
         newUser.save(function(err, newUser) {
           console.log('It is coming here');
           if(err) {
             req.sendStatus(500).send(err);
           } else {
-            console.log('New User -> ',newUser);
                var temp = {"$inc":{"__v":1}};
             util.updatingUser (username,temp ,function() {
-              console.log('It needs to redirect');
+            util.sendingEmail('Congratulations!','Thanks for joining our wonderful community!',function() {
+
             util.createSession(req,res,newUser);     
+            })
            })
           }
         });
@@ -54,8 +57,14 @@ app.set('port',process.env.PORT || 3000);
     })
   });
 
+  app.get('/send',function(req,res,next) {
+    util.sendingEmail('Congratulations!','You completed all of the tasks for today!',function() {
+      next();
+    })
+  })
+
+
   app.post('/',function(req,res) {
-    console.log('Req body --> ',req.body);
     var username = req.body.login;
     var password = req.body.password;
     User.findOne({ username: username }).exec(function(err, user) {
@@ -65,8 +74,9 @@ app.set('port',process.env.PORT || 3000);
         User.comparePassword(password,user.password,function(err,match) {
           if (match) {
             var temp = {"$inc":{"__v":1}};
-            util.updatingUser (user.username,temp ,function() {
-            util.createSession(req,res,user);      
+            util.updatingUser (user.username,temp ,function() {                 
+                util.createSession(req,res,user);      
+              //    })
            })
           } else {
             res.redirect('/signup');
@@ -74,7 +84,9 @@ app.set('port',process.env.PORT || 3000);
         })
       }
     })
-  });
+
+
+});
 
   app.get('/',function(req,res,next,done) {
      res.sendFile('./index.html', {root: path.join(__dirname, './client')});
@@ -109,7 +121,6 @@ app.set('port',process.env.PORT || 3000);
 
 
 
-     //res.send('hello friend');
   app.get('/signup',function(req,res) {
      res.sendFile('./index.html', {root: path.join(__dirname, './client')});
   });

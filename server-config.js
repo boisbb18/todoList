@@ -1,26 +1,29 @@
-var express = require('express');
-var app = express();
-var server = require('http').Server(app);
-var mongoose = require('mongoose');
-var morgan = require('morgan');
-var bodyParser = require('body-parser');
-var routes = require('./routes');
-var http = require('http');
-var path = require('path');
+const nodemailer = require('nodemailer');
+const xoauth2 = require('xoauth2');
 
-app.set('port',process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine','jade');
-app.use(morgan('dev'));
-app.use(bodyParser());
-app.use(express.static(path.join(__dirname,'public')));
-app.get('/',routes.index);
-app.get('/partials/:name', routes.partials);
 
-app.get('/api/name', api.name);
+var smtTransport = nodemailer.createTransport({
+    service:'gmail',
+    host:'boos.bb20@gmail.com',
+    auth:({
+      user:"boos.bb20@gmail.com",
+      pass:"saru2008"
+    })
+  })
 
-app.get('*',routes.index);
+var mailOptions = {
+  from:'Bois <boos.bb20@gmail.com>',
+  to: 'bois.bb18@gmail.com',
+  subject:'nodemailer test',
+  text: 'Hello world! '
+}
 
-http.createServer(app).listen(app.get('port'),function() {
-  console.log('Express server listening on port '+ app.get('port'));
-})
+function sendingEmail = function(callback) {
+  smtTransport.sendMail(mailOptions,function(err,response){
+      if(err) {
+        console.log(err);
+      } else {
+        callback()
+      }
+    })
+}
